@@ -58,6 +58,6 @@ memory_count: Number of users who have used SID
 
 Scan this QR code or click the link to chat with SID instantly:
 Link: https://t.me/Sarcasm_bot
-<img src="https://quickchart.io/qr?text=https://t.me/Sarcasm_bot&size=150" width="150">
+<img src="https://quickchart.io/qr?text=https://t.me/Error404EmpathyNotFound_bot&size=200" width="200">
 
 Made by Mukilan | GitHub
