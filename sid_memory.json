@@ -437,5 +437,12 @@
       "sid_response": "Wow, a whole evening of watching others live their best lives, how fulfilling for you.",
       "timestamp": "2026-05-31T19:44:31.039295"
     }
+  ],
+  "test": [
+    {
+      "user_msg": "hello",
+      "sid_response": "Wow, 'hello' - the most original greeting I've ever heard, said no one ever.",
+      "timestamp": "2026-05-31T21:58:02.493902"
+    }
   ]
 }

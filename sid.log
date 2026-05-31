@@ -510,3 +510,61 @@
 2026-05-31 19:44:31,037 | INFO | 🔥 6003162232 | 'im going to watch in' → 86 chars
 2026-05-31 19:44:31,520 | INFO | HTTP Request: POST https://api.telegram.org/bot8638792950:AAFv8psJbEUmHgH5qyVM56qsEYi7fHpgMxQ/sendMessage "HTTP/1.1 200 OK"
 2026-05-31 19:44:39,934 | INFO | HTTP Request: POST https://api.telegram.org/bot8638792950:AAFv8psJbEUmHgH5qyVM56qsEYi7fHpgMxQ/getUpdates "HTTP/1.1 200 OK"
+2026-05-31 21:30:38,993 | INFO | Loading memory...
+2026-05-31 21:30:38,993 | INFO | Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2026-05-31 21:30:39,875 | INFO | Use pytorch device: cpu
+2026-05-31 21:30:39,875 | INFO | Memory ready
+2026-05-31 21:30:39,875 | INFO | Loading Groq...
+2026-05-31 21:30:39,903 | INFO | 🔥 SID READY - CHAOS/SEPARATE MODES 🔥
+2026-05-31 21:30:45,967 | INFO | Loading memory...
+2026-05-31 21:30:45,968 | INFO | Loading memory...
+2026-05-31 21:30:45,968 | INFO | Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2026-05-31 21:30:45,968 | INFO | Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2026-05-31 21:30:45,968 | INFO | Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2026-05-31 21:30:45,968 | INFO | Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2026-05-31 21:30:46,804 | INFO | Use pytorch device: cpu
+2026-05-31 21:30:46,804 | INFO | Use pytorch device: cpu
+2026-05-31 21:30:46,805 | INFO | Memory ready
+2026-05-31 21:30:46,805 | INFO | Memory ready
+2026-05-31 21:30:46,805 | INFO | Loading Groq...
+2026-05-31 21:30:46,805 | INFO | Loading Groq...
+2026-05-31 21:30:46,805 | INFO | Loading Groq...
+2026-05-31 21:30:46,816 | INFO | Use pytorch device: cpu
+2026-05-31 21:30:46,817 | INFO | Memory ready
+2026-05-31 21:30:46,817 | INFO | Loading Groq...
+2026-05-31 21:30:46,820 | INFO | 🔥 SID READY - CHAOS/SEPARATE MODES 🔥
+2026-05-31 21:30:46,821 | INFO | 🔥 SID READY - CHAOS/SEPARATE MODES 🔥
+2026-05-31 21:30:46,821 | INFO | 🔥 SID READY - CHAOS/SEPARATE MODES 🔥
+2026-05-31 21:30:46,834 | INFO | 🔥 SID READY - CHAOS/SEPARATE MODES 🔥
+2026-05-31 21:30:46,950 | INFO | Loading memory...
+2026-05-31 21:30:46,951 | INFO | Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2026-05-31 21:30:46,951 | INFO | Loading memory...
+2026-05-31 21:30:46,953 | INFO | Loading memory...
+2026-05-31 21:30:46,953 | INFO | Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2026-05-31 21:30:46,954 | INFO | Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2026-05-31 21:30:46,954 | INFO | Loading memory...
+2026-05-31 21:30:46,954 | INFO | Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2026-05-31 21:30:47,597 | INFO | Use pytorch device: cpu
+2026-05-31 21:30:47,600 | INFO | Use pytorch device: cpu
+2026-05-31 21:30:47,603 | INFO | Memory ready
+2026-05-31 21:30:47,605 | INFO | Memory ready
+2026-05-31 21:30:47,605 | INFO | Loading Groq...
+2026-05-31 21:30:47,619 | INFO | 🔥 SID READY - CHAOS/SEPARATE MODES 🔥
+2026-05-31 21:30:47,625 | INFO | Loading Groq...
+2026-05-31 21:30:47,630 | INFO | Use pytorch device: cpu
+2026-05-31 21:30:47,634 | INFO | Memory ready
+2026-05-31 21:30:47,658 | INFO | 🔥 SID READY - CHAOS/SEPARATE MODES 🔥
+2026-05-31 21:30:47,670 | INFO | Loading Groq...
+2026-05-31 21:30:47,723 | INFO | Use pytorch device: cpu
+2026-05-31 21:30:47,723 | INFO | 🔥 SID READY - CHAOS/SEPARATE MODES 🔥
+2026-05-31 21:30:47,729 | INFO | Memory ready
+2026-05-31 21:30:47,729 | INFO | Loading Groq...
+2026-05-31 21:30:47,758 | INFO | 🔥 SID READY - CHAOS/SEPARATE MODES 🔥
+2026-05-31 21:56:40,513 | INFO | Loading memory...
+2026-05-31 21:56:40,514 | INFO | Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2026-05-31 21:56:41,431 | INFO | Use pytorch device: cpu
+2026-05-31 21:56:41,432 | INFO | Memory ready
+2026-05-31 21:56:41,432 | INFO | Loading Groq...
+2026-05-31 21:56:41,466 | INFO | 🔥 SID READY - CHAOS/SEPARATE MODES 🔥
+2026-05-31 21:58:02,483 | INFO | HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2026-05-31 21:58:02,493 | INFO | 🔥 test | 'hello' → 76 chars
