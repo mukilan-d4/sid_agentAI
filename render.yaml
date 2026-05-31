@@ -1,11 +1,13 @@
-services: 
-  - type: web 
-    name: sid-agent 
-    runtime: docker 
-    repo: https://github.com/mukilan-d4/Sid_agentAI 
-    branch: master 
-    dockerfilePath: ./Dockerfile 
-    plan: free 
-    envVars: 
-      - key: GROQ_API_KEY 
-        sync: false 
+services:
+  - type: web
+    name: sid-agent-api
+    runtime: docker
+    repo: https://github.com/mukilan-d4/Sid_agentAI
+    branch: master
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false
+      - key: PORT
+        value: 8000
