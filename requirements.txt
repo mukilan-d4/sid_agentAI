@@ -1,8 +1,8 @@
 setuptools==65.5.0 
 wheel==0.38.4 
-fastapi==0.104.1 
+fastapi>=0.104.1
 uvicorn[standard]==0.24.0 
 python-dotenv==1.0.0 
 sentence-transformers==2.2.2 
 groq==0.4.2 
-pydantic==2.5.0 
+pydantic>=2.7.0
