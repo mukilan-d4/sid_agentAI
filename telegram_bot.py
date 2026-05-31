@@ -51,7 +51,6 @@ No filter. No mercy. Pure entertainment.
 Ready to get roasted? 💀
 """
 
-# Care mode welcome message
 CARE_WELCOME = """
 🤗 *CARE MODE ACTIVATED* 🤗
 
@@ -61,7 +60,6 @@ I'm here to listen and help.
 Type /chaos to go back to savage mode 🔥
 """
 
-# Chaos mode welcome message
 CHAOS_WELCOME = """
 🔥 *CHAOS MODE ACTIVATED* 🔥
 
@@ -77,7 +75,6 @@ Type /care for support mode 🤗
 
 class HealthHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        # Respond to both / and /health paths
         if self.path == '/' or self.path == '/health':
             self.send_response(200)
             self.send_header('Content-type', 'text/plain')
@@ -86,15 +83,12 @@ class HealthHandler(BaseHTTPRequestHandler):
         else:
             self.send_response(404)
             self.end_headers()
-    
+
     def log_message(self, format, *args):
-        # Suppress health check logs
         pass
 
 def run_health_server():
-    # Try both common Render ports
     ports = [int(os.getenv("PORT", 10000)), 8080, 8000]
-    
     for port in ports:
         try:
             server = HTTPServer(("0.0.0.0", port), HealthHandler)
@@ -105,7 +99,6 @@ def run_health_server():
             print(f"⚠️ Port {port} in use, trying next...")
             continue
 
-# Start health server in background thread
 health_thread = threading.Thread(target=run_health_server, daemon=True)
 health_thread.start()
 print("✅ Health server thread started")
@@ -115,82 +108,61 @@ print("✅ Health server thread started")
 # ============================================================
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Send welcome message"""
     await update.message.reply_text(WELCOME_TEXT, parse_mode='Markdown')
 
 async def chaos_mode(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Switch to chaos mode - savage roasts"""
     user_id = str(update.effective_user.id)
     user_modes[user_id] = "chaos"
     await update.message.reply_text(CHAOS_WELCOME, parse_mode='Markdown')
 
 async def care_mode(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Switch to care mode - pure support, no sarcasm"""
     user_id = str(update.effective_user.id)
     user_modes[user_id] = "care"
     await update.message.reply_text(CARE_WELCOME, parse_mode='Markdown')
 
 async def check_mode(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Check current mode"""
     user_id = str(update.effective_user.id)
     mode = user_modes[user_id]
-    
     if mode == "chaos":
         await update.message.reply_text("🔥 *CHAOS MODE* - Savage roasts active 🔥", parse_mode='Markdown')
     else:
         await update.message.reply_text("🤗 *CARE MODE* - Pure support active 🤗", parse_mode='Markdown')
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle user messages"""
-    # Block group chats
     if update.effective_chat.type != "private":
         await update.message.reply_text("🤖 Talk to me in private chat for best experience!")
         return
-    
+
     user_id = str(update.effective_user.id)
     user_message = update.message.text
-    
-    # Rate limiting (prevent spam)
+
     now = datetime.now()
     if user_id in user_last_message:
         time_diff = (now - user_last_message[user_id]).total_seconds()
         if time_diff < 1:
             await update.message.reply_text("Slow down... 🔥")
             return
-    
+
     user_last_message[user_id] = now
-    
-    # Show typing indicator
     await update.message.chat.send_action(action="typing")
-    
+
     try:
-        # Get user's mode
         mode = user_modes[user_id]
-        
-        # Get response from SID
         response = sid_agent.chat(user_id, user_message, mode)
-        
-        # Send response
         await update.message.reply_text(response)
-        
     except Exception as e:
         logger.error(f"Error: {e}")
         await update.message.reply_text("Something went wrong. Try again. 💀")
 
 async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle errors"""
     logger.error(f"Update {update} caused error {context.error}")
     if update and update.effective_message:
         await update.effective_message.reply_text("Error occurred. Try again. 💀")
 
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Show user stats (optional feature)"""
     user_id = str(update.effective_user.id)
     mode = user_modes[user_id]
-    
-    # Get rough message count from sessions
     session_count = len(sid_agent._sessions.get(user_id, [])) // 2
-    
     stats_text = f"""
 📊 *Your Stats*
 
@@ -202,63 +174,51 @@ Keep talking - I remember everything!
     """
     await update.message.reply_text(stats_text, parse_mode='Markdown')
 
+async def adminstats(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Show admin stats - total users and messages"""
+    total_users = len(sid_agent.memory.memories)
+    total_msgs = sum(len(v) for v in sid_agent.memory.memories.values())
+    await update.message.reply_text(
+        f"👥 Total Users: {total_users}\n"
+        f"💬 Total Messages: {total_msgs}\n"
+        f"🔥 Active Sessions: {len(sid_agent._sessions)}"
+    )
+
 # ============================================================
 # MAIN FUNCTION
 # ============================================================
 
 def main():
-    """Start the bot"""
     token = os.getenv("TELEGRAM_BOT_TOKEN")
     if not token:
-        print("=" * 50)
         print("❌ TELEGRAM_BOT_TOKEN not found!")
-        print("=" * 50)
-        print("\nCreate .env file with:")
-        print("TELEGRAM_BOT_TOKEN=your_token_here")
-        print("GROQ_API_KEY=your_key_here")
-        print("\nGet token from @BotFather on Telegram")
         return
-    
+
     if not config.GROQ_API_KEY:
-        print("=" * 50)
         print("❌ GROQ_API_KEY not found!")
-        print("=" * 50)
-        print("\nAdd to .env file:")
-        print("GROQ_API_KEY=your_groq_key_here")
         return
-    
+
     print("=" * 50)
     print("🤖 SID TELEGRAM BOT STARTING...")
     print("=" * 50)
-    print(f"🔥 CHAOS MODE: Savage roasts")
-    print(f"🤗 CARE MODE: Pure support")
-    print(f"📝 Logging: sid.log")
-    print("=" * 50)
-    
-    # Create application
+
     app = Application.builder().token(token).build()
-    
-    # Add command handlers
+
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("chaos", chaos_mode))
     app.add_handler(CommandHandler("care", care_mode))
     app.add_handler(CommandHandler("mode", check_mode))
     app.add_handler(CommandHandler("stats", stats))
-    
-    # Add message handler (only for private chats)
+    app.add_handler(CommandHandler("adminstats", adminstats))
+
     app.add_handler(MessageHandler(
-        filters.TEXT & ~filters.COMMAND & filters.ChatType.PRIVATE, 
+        filters.TEXT & ~filters.COMMAND & filters.ChatType.PRIVATE,
         handle_message
     ))
-    
-    # Add error handler
+
     app.add_error_handler(error_handler)
-    
-    # Start the bot
+
     print("\n✅ Bot is running!")
-    print("📱 Open Telegram and search for your bot")
-    print("🛑 Press Ctrl+C to stop\n")
-    
     app.run_polling(allowed_updates=Update.ALL_TYPES)
 
 if __name__ == "__main__":
