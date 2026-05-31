@@ -1,6 +1,8 @@
 # telegram_bot.py - SID Telegram Bot (CHAOS + PURE CARE MODE)
 import os
 import logging
+import threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
 from datetime import datetime
 from collections import defaultdict
 
@@ -68,6 +70,49 @@ Ready to get destroyed? 💀
 
 Type /care for support mode 🤗
 """
+
+# ============================================================
+# HEALTH CHECK SERVER (Required for Render)
+# ============================================================
+
+class HealthHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        # Respond to both / and /health paths
+        if self.path == '/' or self.path == '/health':
+            self.send_response(200)
+            self.send_header('Content-type', 'text/plain')
+            self.end_headers()
+            self.wfile.write(b"OK")
+        else:
+            self.send_response(404)
+            self.end_headers()
+    
+    def log_message(self, format, *args):
+        # Suppress health check logs
+        pass
+
+def run_health_server():
+    # Try both common Render ports
+    ports = [int(os.getenv("PORT", 10000)), 8080, 8000]
+    
+    for port in ports:
+        try:
+            server = HTTPServer(("0.0.0.0", port), HealthHandler)
+            print(f"✅ Health server running on port {port}")
+            server.serve_forever()
+            break
+        except OSError:
+            print(f"⚠️ Port {port} in use, trying next...")
+            continue
+
+# Start health server in background thread
+health_thread = threading.Thread(target=run_health_server, daemon=True)
+health_thread.start()
+print("✅ Health server thread started")
+
+# ============================================================
+# BOT COMMANDS
+# ============================================================
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Send welcome message"""
@@ -157,6 +202,10 @@ Keep talking - I remember everything!
     """
     await update.message.reply_text(stats_text, parse_mode='Markdown')
 
+# ============================================================
+# MAIN FUNCTION
+# ============================================================
+
 def main():
     """Start the bot"""
     token = os.getenv("TELEGRAM_BOT_TOKEN")
@@ -211,22 +260,6 @@ def main():
     print("🛑 Press Ctrl+C to stop\n")
     
     app.run_polling(allowed_updates=Update.ALL_TYPES)
-
-import threading
-from http.server import HTTPServer, BaseHTTPRequestHandler
-
-class Handler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.end_headers()
-        self.wfile.write(b"OK")
-    def log_message(self, *args):
-        pass
-
-def run_health():
-    HTTPServer(("0.0.0.0", int(os.getenv("PORT", 8080))), Handler).serve_forever()
-
-threading.Thread(target=run_health, daemon=True).start()
 
 if __name__ == "__main__":
     main()
