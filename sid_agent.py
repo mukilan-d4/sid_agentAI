@@ -10,8 +10,6 @@ from collections import defaultdict
 from typing import List, Dict
 from datetime import datetime, timedelta
 
-os.environ['TOKENIZERS_PARALLELISM'] = 'false'
-
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -26,7 +24,6 @@ logging.basicConfig(
 )
 log = logging.getLogger("SID")
 
-from sentence_transformers import SentenceTransformer
 from groq import Groq
 
 class SimpleStateGraph:
@@ -60,7 +57,6 @@ StateGraph = SimpleStateGraph
 class MemoryStore:
     def __init__(self):
         log.info("Loading memory...")
-        self.embedder = SentenceTransformer('all-MiniLM-L6-v2')
         self.memory_file = "sid_memory.json"
         self.memories = self._load_memories()
         log.info("Memory ready")
@@ -127,10 +123,6 @@ class SafetyFilters:
                 return True
         return False
 
-# ============================================================
-# SEPARATE PROMPTS FOR EACH MODE
-# ============================================================
-
 # CHAOS MODE - Savage, witty, 120-150 chars
 CHAOS_PROMPT = """You are SID in CHAOS mode. Savage, witty, hilarious. Roast them but make it funny.
 
@@ -158,7 +150,6 @@ User: {input}
 
 Your supportive response:"""
 
-# Agent State
 class AgentState:
     def __init__(self, **kwargs):
         self.user_id = kwargs.get('user_id', '')
@@ -186,7 +177,7 @@ class SIDAgent:
         self.client = Groq(api_key=config.GROQ_API_KEY)
         log.info("🔥 SID READY - CHAOS/SEPARATE MODES 🔥")
         self.graph = self._build_graph()
-    
+
     def _build_graph(self):
         workflow = StateGraph()
         workflow.add_node("check_safety", self._check_safety)
@@ -201,43 +192,35 @@ class SIDAgent:
         workflow.add_edge("generate_response", "remember_chat")
         workflow.add_edge("remember_chat", END)
         return workflow.compile()
-    
+
     def _check_safety(self, state):
         state["safety_triggered"] = self.safety.has_self_harm(state["user_input"])
         return state
-    
+
     def _check_rate(self, state):
         state["rate_limited"] = not self.rate_limiter.is_allowed(state["user_id"])
         return state
-    
+
     def _recall_memory(self, state):
         if not state["safety_triggered"] and not state["rate_limited"]:
             state["memory_context"] = self.memory.retrieve(state["user_id"], state["user_input"])
             state["recent_history"] = self._sessions[state["user_id"]][-config.CONVERSATION_HISTORY * 2:]
         return state
-    
+
     def _generate_response(self, state):
         if state["safety_triggered"]:
             state["response"] = f"Call {config.ICALL_HELPLINE}"
             return state
-        
+
         if state["rate_limited"]:
             responses = ["Chill 💀", "Too fast 😂", "Slow down 🔥"]
             state["response"] = random.choice(responses)
             return state
-        
-        # Build history
-        history_lines = []
-        for turn in state.get("recent_history", [])[-4:]:
-            role = "You" if turn["role"] == "user" else "SID"
-            history_lines.append(f"{role}: {turn['content']}")
-        history_text = "\n".join(history_lines[-2:]) if history_lines else "None"
-        
-        # Choose prompt based on mode
+
         if state["mode"] == "chaos":
             user_prompt = CHAOS_PROMPT.format(input=state["user_input"])
             temperature = config.CHAOS_TEMPERATURE
-            system_msg = """You are SID in CHAOS mode. Savage, witty, hilarious. 
+            system_msg = """You are SID in CHAOS mode. Savage, witty, hilarious.
 120-150 characters only. One sentence. Roast them but make it funny.
 Never be mean-spirited, always clever and entertaining."""
         else:
@@ -246,7 +229,7 @@ Never be mean-spirited, always clever and entertaining."""
             system_msg = """You are SID in CARE mode. Pure support. No sarcasm. No jokes.
 100-150 characters only. Be kind, warm, and genuinely helpful.
 Offer practical solutions. Use emojis sparingly. Just care."""
-        
+
         try:
             completion = self.client.chat.completions.create(
                 model=config.GROQ_MODEL,
@@ -260,15 +243,12 @@ Offer practical solutions. Use emojis sparingly. Just care."""
             )
             response_text = completion.choices[0].message.content.strip()
             response_text = response_text.strip('"').strip("'")
-            
-            char_count = len(response_text)
-            log.info(f"{'🔥' if state['mode']=='chaos' else '🤗'} {state['user_id']} | '{state['user_input'][:20]}' → {char_count} chars")
-            
+            log.info(f"{'🔥' if state['mode']=='chaos' else '🤗'} {state['user_id']} | '{state['user_input'][:20]}' → {len(response_text)} chars")
+
         except Exception as e:
             log.error(f"Groq error: {e}")
             response_text = ""
-        
-        # Mode-specific fallbacks
+
         if not response_text:
             if state["mode"] == "chaos":
                 fallbacks = [
@@ -283,14 +263,13 @@ Offer practical solutions. Use emojis sparingly. Just care."""
                     "Take a deep breath. We'll figure this out."
                 ]
             response_text = random.choice(fallbacks)
-        
-        # Hard limit on length
+
         if len(response_text) > 160:
             response_text = response_text[:157] + "..."
-        
+
         state["response"] = response_text
         return state
-    
+
     def _remember_chat(self, state):
         if state["safety_triggered"] or state["rate_limited"]:
             return state
@@ -301,14 +280,14 @@ Offer practical solutions. Use emojis sparingly. Just care."""
             self._sessions[uid] = self._sessions[uid][-40:]
         self.memory.store(uid, state["user_input"], state["response"])
         return state
-    
+
     def chat(self, user_id: str, message: str, mode: str = "chaos") -> str:
         message = message.strip()
         if not message:
             return "Say something 💀"
         if len(message) > config.MAX_INPUT_LENGTH:
-            return f"Too long 💀"
-        
+            return "Too long 💀"
+
         initial = AgentState(
             user_id=user_id,
             user_input=message,
@@ -326,21 +305,20 @@ def main():
     print("\n" + "=" * 50)
     print("🔥 SID - CHAOS & CARE SEPARATE 🔥")
     print("=" * 50)
-    
+
     if not config.GROQ_API_KEY:
         print("\n❌ GROQ_API_KEY not set in .env")
         return
-    
+
     sid = SIDAgent()
     name = input("\nYour name? ").strip() or "friend"
     mode = "chaos"
     print("\n🔥 CHAOS MODE - Savage roasts")
     print("🤗 Type /care for support mode\n")
-    
+
     while True:
         try:
             user_input = input(f"[{mode.upper()}] {name}: ").strip()
-            
             if user_input.lower() == "/quit":
                 print("\nSID: Later 💀\n")
                 break
@@ -354,10 +332,9 @@ def main():
                 continue
             if not user_input:
                 continue
-            
             response = sid.chat(name, user_input, mode)
             print(f"\n{'🔥' if mode=='chaos' else '🤗'} SID: {response}\n")
-            
+
         except KeyboardInterrupt:
             print("\n\nSID: Coward 💀\n")
             break
