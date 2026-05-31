@@ -1,4 +1,4 @@
-FROM python:3.10-slim
+FROM python:3.9-slim
 
 WORKDIR /app
 
@@ -6,11 +6,12 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     gcc \
     g++ \
-    curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements
+# Copy requirements first for better caching
 COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip
+RUN pip install --no-cache-dir setuptools==65.5.0 wheel==0.38.4
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application
@@ -22,5 +23,5 @@ RUN mkdir -p /app/sid_memory
 # Expose port
 EXPOSE 8000
 
-# Run API server
-CMD ["python", "api_server.py"]
+# Run the API
+CMD ["uvicorn", "api_server:app", "--host", "0.0.0.0", "--port", "8000"]
