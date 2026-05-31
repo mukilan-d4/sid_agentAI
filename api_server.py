@@ -57,15 +57,22 @@ class HealthResponse(BaseModel):
     timestamp: datetime
     memory_count: int
 
-@app.get("/", response_model=HealthResponse)
+@app.get("/")
 async def root():
     """Health check endpoint."""
-    return HealthResponse(
-        status="healthy",
-        version="1.0.0",
-        timestamp=datetime.now(),
-        memory_count=sid_agent.memory.collection.count()
-    )
+    # Get memory count safely (works with both ChromaDB and SimpleMemoryStore)
+    try:
+        memory_count = sid_agent.memory.collection.count()
+    except AttributeError:
+        # For SimpleMemoryStore fallback
+        memory_count = len(sid_agent.memory.memories) if hasattr(sid_agent.memory, 'memories') else 0
+    
+    return {
+        "status": "healthy",
+        "version": "1.0.0",
+        "timestamp": datetime.now(),
+        "memory_count": memory_count
+    }
 
 @app.get("/health")
 async def health_check():
