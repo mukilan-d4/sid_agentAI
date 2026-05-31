@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  sid-api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - PORT=8000
+    volumes:
+      - sid_memory_data:/app/sid_memory
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - sid_network
+
+  sid-bot:
+    build: .
+    command: python telegram_bot.py
+    environment:
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+    volumes:
+      - sid_memory_data:/app/sid_memory
+    restart: unless-stopped
+    depends_on:
+      - sid-api
+    networks:
+      - sid_network
+
+volumes:
+  sid_memory_data:
+
+networks:
+  sid_network:
+    driver: bridge
