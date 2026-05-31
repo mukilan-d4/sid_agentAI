@@ -212,5 +212,21 @@ def main():
     
     app.run_polling(allowed_updates=Update.ALL_TYPES)
 
+import threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
+
+class Handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"OK")
+    def log_message(self, *args):
+        pass
+
+def run_health():
+    HTTPServer(("0.0.0.0", int(os.getenv("PORT", 8080))), Handler).serve_forever()
+
+threading.Thread(target=run_health, daemon=True).start()
+
 if __name__ == "__main__":
     main()
