@@ -154,7 +154,7 @@ async def send_dynamic_greeting(bot, greeting_type):
             
             greeted_today.add(user_id)
             print(f"✅ {greeting_type} AI greeting sent to {user_id}")
-            await asyncio.sleep(1)  # Rate limit to avoid blocking
+            await asyncio.sleep(1)
         except Exception as e:
             print(f"❌ Failed to send to {user_id}: {e}")
 
@@ -190,7 +190,7 @@ async def greeting_scheduler():
             greeted_today.clear()
             print("🔄 Reset greeting flags for new day")
         
-        await asyncio.sleep(30)  # Check every 30 seconds
+        await asyncio.sleep(30)
 
 # ============================================================
 # BOT COMMANDS
@@ -307,9 +307,13 @@ def main():
 
     app.add_error_handler(error_handler)
 
-    # Start AI greeting scheduler
+    # Start AI greeting scheduler - FIXED for Python 3.14
     greeting_scheduler.bot = app.bot
-    loop = asyncio.get_event_loop()
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
     loop.create_task(greeting_scheduler())
     print("\n✅ AI Greeting Scheduler Started!")
     print("⏰ Morning: 7:00 AM IST | Night: 12:00 AM IST")
